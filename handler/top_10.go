@@ -5,6 +5,6 @@ import (
 	"github.com/valyala/fasthttprouter"
 )
 
-func TodayTop10Address(*fasthttp.RequestCtx, fasthttprouter.Params) {
+func TodayTop10Address(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 
 }

@@ -14,9 +14,9 @@ import (
 )
 
 type roundInfo struct {
-	Id      string  `json:"_id"`
-	Iost    float64 `json:"totalWinIost"`
-	WinTime int     `json:"totalWinTimes"`
+	Id       string `json:"_id"`
+	Iost     int64  `json:"totalWinIost"`
+	WinTimes int    `json:"totalWinTimes"`
 }
 type roundInfos []roundInfo
 
@@ -45,9 +45,9 @@ func BetRound(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 
 	for _, reward := range r {
 		infos = append(infos, roundInfo{
-			Id:      reward.Account,
-			Iost:    reward.Reward,
-			WinTime: 1,
+			Id:       reward.Account,
+			Iost:     reward.Reward,
+			WinTimes: 1,
 		})
 	}
 

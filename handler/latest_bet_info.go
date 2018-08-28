@@ -14,12 +14,12 @@ type latestBetInfo struct {
 }
 
 type betInfo struct {
-	Round  int     `json:"round"`
-	Height int     `json:"BlockHeight"`
-	Total  int     `json:"TotalUserNumber"`
-	Win    int     `json:"WinUserNumber"`
-	Award  float64 `json:"TotalRewards"`
-	Time   int64   `json:"win_time"`
+	Round  int   `json:"round"`
+	Height int   `json:"BlockHeight"`
+	Total  int   `json:"TotalUserNumber"`
+	Win    int   `json:"WinUserNumber"`
+	Award  int64 `json:"TotalRewards"`
+	Time   int64 `json:"win_time"`
 }
 
 func LatestBetInfo(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {

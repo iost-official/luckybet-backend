@@ -2,7 +2,7 @@ package iost
 
 import "github.com/iost-official/Go-IOS-Protocol/core/tx"
 
-func BalanceByKey(address string) (float64, error) {
+func BalanceByKey(address string) (int64, error) {
 
 }
 
