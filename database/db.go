@@ -45,6 +45,14 @@ type BlockInfo struct {
 	Time   int64
 }
 
+type Bet struct {
+	Address     string `json:"address"`
+	LuckyNumber int    `json:"lucky_number"`
+	BetAmount   int    `json:"bet_amount"`
+	BetTime     int64  `json:"bet_time"`
+	ClientIp    []byte `json:"client_ip"`
+}
+
 func (d *Database) Insert(i interface{}) error {
 	switch i.(type) {
 	case *Result:
@@ -72,6 +80,14 @@ func (d *Database) QueryRewards(round int) (rewards []Reward, err error) {
 func (d *Database) QueryBlockInfo(height int) (blockInfo *BlockInfo, err error) {
 	err = d.BlockInfo.Find(bson.M{"height": height}).One(&blockInfo)
 	return
+}
+
+func (d *Database) QueryBet(address string, bias, length int) ([]*Bet, error) {
+	return nil, nil
+}
+
+func (d *Database) QueryBetCount(address string) int {
+	return 0
 }
 
 func (d *Database) LastBlock() *BlockInfo {
