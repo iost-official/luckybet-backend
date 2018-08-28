@@ -70,6 +70,14 @@ type Bet struct {
 	ClientIp    string `json:"client_ip"`
 }
 
+type top10 struct {
+	Id            string `json:"id"`
+	TotalWinIOST  int    `json:"total_win_iost"`
+	TotalBet      int    `json:"total_bet"`
+	TotalWinTimes int    `json:"total_win_times"`
+	NetEarn       int    `json:"net_earn"`
+}
+
 func (d *Database) Insert(i interface{}) error {
 	switch i.(type) {
 	case *Result:

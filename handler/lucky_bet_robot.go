@@ -11,7 +11,7 @@ import (
 )
 
 func LuckyBetBenchMark(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
-	lbr := luckyBetRequest{
+	lbr := luckyBetHandler{
 		address:     params.ByName("address"),
 		betAmount:   params.ByName("betAmount"),
 		luckyNumber: params.ByName("luckyNumber"),
