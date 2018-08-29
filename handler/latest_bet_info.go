@@ -25,6 +25,7 @@ type betInfo struct {
 func LatestBetInfo(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 
 	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
+	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 
 	bi, err := D.QueryBlockInfo(D.LastBlock().Height)
 	if err != nil {

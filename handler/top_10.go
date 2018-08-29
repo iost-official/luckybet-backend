@@ -12,6 +12,7 @@ import (
 
 func TodayTop10Address(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
+	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	ctx.Response.Header.SetStatusCode(200)
 
 	t, err := D.QueryTop10(time.Now().UnixNano())

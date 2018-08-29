@@ -26,6 +26,7 @@ func AddressBet(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 	tag := params.ByName("t")
 
 	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
+	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 
 	pageInt, _ := strconv.Atoi(page)
 	if pageInt <= 0 {

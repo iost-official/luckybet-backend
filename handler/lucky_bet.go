@@ -56,6 +56,7 @@ func LuckyBet(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 	address := params.ByName("address")
 
 	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
+	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	ctx.Response.Header.SetStatusCode(200)
 
 	if !lbr.verifyGCAP() {

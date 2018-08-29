@@ -38,6 +38,7 @@ func BetRound(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 	}
 
 	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
+	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 
 	r, err := D.QueryRewards(round)
 
