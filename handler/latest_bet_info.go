@@ -28,7 +28,7 @@ func LatestBetInfo(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 
 	bi, err := D.QueryBlockInfo(D.LastBlock().Height)
 	if err != nil {
-		ctx.Error(err.Error(), 500)
+		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 		return
 	}
 
@@ -38,28 +38,20 @@ func LatestBetInfo(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 	}
 
 	rtn.List = make([]*betInfo, 0)
-	var last = D.LastBet().Round
-	for i := 0; i < 5; i++ {
-		if last-i < 0 {
-			break
-		}
-		r, err := D.QueryResult(last)
-		if err != nil {
-			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
-			return
-		}
-		bx, err := D.QueryBlockInfo(r.Height)
-		if err != nil {
-			ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
-			return
-		}
+	last5, err := D.QueryResult(0, 5)
+	if err != nil {
+		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
+		return
+	}
+
+	for _, r := range last5 {
 		bi := betInfo{
 			Round:  r.Round,
 			Height: r.Height,
 			Total:  r.Total,
 			Win:    r.Win,
 			Award:  r.Award,
-			Time:   bx.Time,
+			Time:   r.Time,
 		}
 		rtn.List = append(rtn.List, &bi)
 	}
@@ -69,4 +61,5 @@ func LatestBetInfo(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 		return
 	}
+	ctx.Response.SetStatusCode(200)
 }

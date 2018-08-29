@@ -25,6 +25,8 @@ func AddressBet(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 	page := params.ByName("p")
 	tag := params.ByName("t")
 
+	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
+
 	pageInt, _ := strconv.Atoi(page)
 	if pageInt <= 0 {
 		pageInt = 1

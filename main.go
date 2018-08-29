@@ -21,6 +21,9 @@ func main() {
 		Results:   session.DB("test").C("results"),
 		Rewards:   session.DB("test").C("rewards"),
 		BlockInfo: session.DB("test").C("blocks"),
+		Bets:      session.DB("test").C("bets"),
+
+		Todays1stRound: 0,
 	}
 
 	run()

@@ -12,7 +12,7 @@ import (
 )
 
 type luckyBetHandler struct {
-	address     string // params.ByName("address")
+	account     string // params.ByName("account")
 	betAmount   string // params.ByName("betAmount")
 	luckyNumber string // params.ByName("luckyNumber")
 	privKey     string // params.ByName("privKey")
@@ -70,7 +70,7 @@ func (l *luckyBetHandler) verifyGCAP() bool {
 
 func (l *luckyBetHandler) checkArgs() bool {
 	var err error
-	if l.address == "" || l.betAmount == "" || l.privKey == "" || l.luckyNumber == "" {
+	if l.account == "" || l.betAmount == "" || l.privKey == "" || l.luckyNumber == "" {
 		log.Println("GetLuckyBet nil params")
 		return false
 	}
@@ -87,7 +87,7 @@ func (l *luckyBetHandler) checkArgs() bool {
 		return false
 	}
 
-	if len(l.address) != 44 && len(l.address) != 45 {
+	if len(l.account) != 44 && len(l.account) != 45 {
 		log.Println("GetLuckyBet invalid address")
 		return false
 	}
@@ -96,7 +96,7 @@ func (l *luckyBetHandler) checkArgs() bool {
 
 func (l *luckyBetHandler) checkBalance() int64 {
 
-	balance, err := iost.BalanceByKey(l.address)
+	balance, err := iost.BalanceByKey(l.account)
 	if err != nil {
 		log.Println("GetLuckyBet GetBalanceByKey error:", err)
 	}
@@ -109,7 +109,7 @@ func (l *luckyBetHandler) send() bool {
 		transferIndex int
 	)
 	for transferIndex < 3 {
-		txHash, err := iost.SendBet(l.address, l.privKey, l.luckyNumberInt, l.betAmountInt)
+		txHash, err := iost.SendBet(l.account, l.privKey, l.luckyNumberInt, l.betAmountInt)
 		if err != nil {
 			log.Println("GetLuckyBet SendBet error:", err)
 		}

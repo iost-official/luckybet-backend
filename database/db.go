@@ -15,8 +15,8 @@ type Database struct {
 	BlockInfo *mgo.Collection
 	Bets      *mgo.Collection
 
-	todays1stRound   int
-	top10            []interface{}
+	Todays1stRound   int
+	top10            []Top10
 	lastTopQueryTime time.Time
 }
 
@@ -42,6 +42,7 @@ type Result struct {
 	Total       int
 	Win         int
 	Award       int64
+	Time        int64
 }
 
 type Reward struct {
@@ -63,19 +64,19 @@ type BlockInfo struct {
 }
 
 type Bet struct {
-	Address     string `json:"address"`
+	Account     string `json:"Account"`
 	LuckyNumber int    `json:"lucky_number"`
 	BetAmount   int    `json:"bet_amount"`
 	BetTime     int64  `json:"bet_time"`
 	ClientIp    string `json:"client_ip"`
 }
 
-type top10 struct {
-	Id            string `json:"id"`
-	TotalWinIOST  int    `json:"total_win_iost"`
-	TotalBet      int    `json:"total_bet"`
-	TotalWinTimes int    `json:"total_win_times"`
-	NetEarn       int    `json:"net_earn"`
+type Top10 struct {
+	Id            string `json:"_id"`
+	TotalWinIOST  int64  `json:"totalWinIost"`
+	TotalBet      int64  `json:"totalBet"`
+	TotalWinTimes int    `json:"totalWinTimes"`
+	NetEarn       int64  `json:"netEarn"`
 }
 
 func (d *Database) Insert(i interface{}) error {
@@ -96,13 +97,13 @@ func (d *Database) Insert(i interface{}) error {
 	return nil
 }
 
-func (d *Database) QueryResult(round int) (result *Result, err error) {
-	err = d.Results.Find(bson.M{"round": round}).One(&result)
+func (d *Database) QueryResult(round, limit int) (result []Result, err error) {
+	err = d.Results.Find(bson.M{}).Limit(limit).Sort("-round").All(&result)
 	return
 }
 
 func (d *Database) QueryRewards(round int) (rewards []Reward, err error) {
-	err = d.Rewards.Find(bson.M{"round": round}).All(&rewards)
+	err = d.Rewards.Find(bson.M{"round": round, "times": bson.M{"$gte": 1}}).All(&rewards)
 	return
 }
 
@@ -121,7 +122,7 @@ func (d *Database) QueryBetCount(address string) int {
 	return n
 }
 
-func (d *Database) QueryTop10(t int64) (ids []interface{}, err error) {
+func (d *Database) QueryTop10(t int64) (top []Top10, err error) {
 	if d.top10 != nil && time.Since(d.lastTopQueryTime) < 2*time.Minute {
 		return d.top10, nil
 	}
@@ -130,16 +131,16 @@ func (d *Database) QueryTop10(t int64) (ids []interface{}, err error) {
 		{
 			"$match": bson.M{
 				"round": bson.M{
-					"$gte": d.todays1stRound,
+					"$gte": d.Todays1stRound,
 				},
-				"address": bson.M{
+				"account": bson.M{
 					"$nin": robotAddressList,
 				},
 			},
 		},
 		{
 			"$group": bson.M{
-				"_id":           "$address",
+				"_id":           "$account",
 				"totalWinIOST":  bson.M{"$sum": "$reward"},
 				"totalBet":      bson.M{"$sum": "$bet"},
 				"totalWinTimes": bson.M{"$sum": "$times"},
@@ -160,13 +161,25 @@ func (d *Database) QueryTop10(t int64) (ids []interface{}, err error) {
 		},
 	}
 
-	var top10DayBetWinners []interface{}
-	err = d.Rewards.Pipe(queryPip).All(&top10DayBetWinners)
+	var top10DayBetWinners = make([]Top10, 0)
+	//err = d.Rewards.Pipe(queryPip).All(&top10DayBetWinners)
 
-	if err == nil {
-		d.top10 = top10DayBetWinners
-		d.lastTopQueryTime = time.Now()
+	var it []interface{}
+	err = d.Rewards.Pipe(queryPip).All(&it)
+
+	for _, m := range it {
+		mr := m.(bson.M)
+		top10DayBetWinners = append(top10DayBetWinners, Top10{
+			Id:            mr["_id"].(string),
+			TotalWinIOST:  mr["totalWinIOST"].(int64),
+			TotalBet:      mr["totalBet"].(int64),
+			TotalWinTimes: mr["totalWinTimes"].(int),
+			NetEarn:       mr["netEarn"].(int64),
+		})
 	}
+
+	d.top10 = top10DayBetWinners
+	d.lastTopQueryTime = time.Now()
 
 	return top10DayBetWinners, err
 }
@@ -177,8 +190,8 @@ func (d *Database) LastBlock() *BlockInfo {
 	return &bi
 }
 
-func (d *Database) LastBet() *Result {
-	var r Result
-	d.Results.Find(bson.M{}).Sort("-round").One(&r)
-	return &r
-}
+//func (d *Database) LastBet() *Result {
+//	var r Result
+//	d.Results.Find(bson.M{}).Sort("-round").One(&r)
+//	return &r
+//}
