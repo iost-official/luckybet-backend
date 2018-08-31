@@ -3,6 +3,8 @@ package handler
 import (
 	"encoding/json"
 
+	"fmt"
+
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttprouter"
 )
@@ -41,6 +43,8 @@ func LatestBetInfo(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 	rtn.List = make([]*betInfo, 0)
 	last5, err := D.QueryResult(0, 5)
 	if err != nil {
+		fmt.Println(err)
+
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 		return
 	}
@@ -59,6 +63,8 @@ func LatestBetInfo(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 
 	err = json.NewEncoder(ctx).Encode(rtn)
 	if err != nil {
+		fmt.Println(err)
+
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)
 		return
 	}

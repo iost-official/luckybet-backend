@@ -32,6 +32,7 @@ func run() {
 	router.GET("/api/luckyBet/addressBet/:id", handler.AddressBet)
 	router.GET("/api/luckyBet/latestBetInfo", handler.LatestBetInfo)
 	router.GET("/api/luckyBet/todayRanking", handler.TodayTop10Address)
+	router.GET("/api/luckyBetBlockInfo", handler.BetInfo)
 
 	fasthttp.ListenAndServe(":12345", router.Handler)
 }

@@ -20,7 +20,7 @@ import (
 var (
 	LocalIServer = "http://localhost:30301/"
 	Client       = fasthttp.Client{}
-	Contract     = "Contract2qzmSGZA6cup8BNhzhbss5sP6ivy4EQQHjaVuB2q2GTw"
+	Contract     = "Contract" + "HzcL8MKaq8jTaUzozqe9aaLbB9vVK1kYwCKkp7kk6LuW"
 )
 
 func BalanceByKey(address string) (int64, error) {
@@ -76,6 +76,42 @@ func GetTxnByHash(hash string) (*tx.Tx, error) {
 	return &t, nil
 }
 
+func BlockChainHeight() (int, error) {
+	j, err := get(LocalIServer + "/getHeight")
+	if err != nil {
+		return 0, err
+	}
+
+	s, err := j.Get("height").String()
+
+	return strconv.Atoi(s)
+}
+
+func Block(height int) (*BlockInfo, error) {
+	j, err := get(LocalIServer + fmt.Sprintf("/getBlockByNum/%v/0", height))
+	if err != nil {
+		return nil, err
+	}
+
+	hs, err := j.Get("head").Get("number").String()
+	if err != nil {
+		return nil, fmt.Errorf("get block: %v", err)
+	}
+	h, _ := strconv.Atoi(hs)
+
+	ts, err := j.Get("head").Get("time").String()
+	if err != nil {
+		return nil, fmt.Errorf("get block: %v", err)
+	}
+	t, _ := strconv.ParseInt(ts, 10, 64)
+
+	bi := &BlockInfo{
+		Height: h,
+		Time:   t,
+	}
+	return bi, nil
+}
+
 func Round() (int, error) {
 	s, err := value("round")
 	if err != nil {
@@ -88,18 +124,71 @@ func Round() (int, error) {
 	return strconv.Atoi(ss[1:])
 }
 
-func IostResult(round int) (*Result, error) {
+func IostResult(round int) (*Result, []Record, []Reward, error) {
 	j, err := value("result" + strconv.Itoa(round))
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
-	js, err := j.Bytes()
+	s, _ := j.String()
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
+
+	buf := []byte(s[1:])
+
+	jbuf, err := simplejson.NewJson(buf)
+
 	var res Result
-	err = json.Unmarshal(js, &res)
-	return &res, err
+	err = json.Unmarshal(buf, &res)
+
+	res.Round = round
+	res.LuckyNumber = res.Height % 10
+
+	awardstr, err := jbuf.Get("total_coins").Get("number").String()
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	res.Award, err = strconv.ParseInt(awardstr, 10, 64)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	records := make([]Record, 0)
+
+	a := jbuf.Get("records").MustArray([]interface{}{})
+	for _, m := range a {
+		rec := Record{
+			Round: round,
+		}
+		rec.Account = m.(map[string]interface{})["account"].(string)
+		rec.Bet, err = m.(map[string]interface{})["coins"].(json.Number).Int64()
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		records = append(records, rec)
+	}
+
+	rewards := make([]Reward, 0)
+	b := jbuf.Get("rewards").MustArray([]interface{}{})
+	for _, m := range b {
+		rew := Reward{
+			Round: round,
+		}
+		rew.Account = m.(map[string]interface{})["account"].(string)
+		rew.Reward, err = m.(map[string]interface{})["reward"].(json.Number).Int64()
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		t, err := m.(map[string]interface{})["times"].(json.Number).Int64()
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		rew.Times = int(t)
+		rewards = append(rewards, rew)
+	}
+
+	return &res, records, rewards, err
 }
 
 func value(key string) (*simplejson.Json, error) {

@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"log"
-
 	"errors"
 
 	"encoding/json"
@@ -42,28 +40,27 @@ type luckyBet struct {
 	TxHash string `json:"tx_hash"`
 }
 
-func LuckyBet(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
-
+func LuckyBet(ctx *fasthttp.RequestCtx, _ fasthttprouter.Params) {
+	params := ctx.PostArgs()
 	lbr := luckyBetHandler{
-		account:     params.ByName("address"),
-		betAmount:   params.ByName("betAmount"),
-		luckyNumber: params.ByName("luckyNumber"),
-		privKey:     params.ByName("privKey"),
-		gcaptcha:    params.ByName("gcaptcha"),
+		account:     string(params.Peek("address")),
+		betAmount:   string(params.Peek("betAmount")),
+		luckyNumber: string(params.Peek("luckyNumber")),
+		privKey:     string(params.Peek("privKey")),
+		gcaptcha:    string(params.Peek("gcaptcha")),
 
 		remoteip: string(ctx.Request.Header.Peek("Iost_Remote_Addr")),
 	}
-	address := params.ByName("address")
 
 	ctx.Response.Header.SetCanonical(strContentType, strApplicationJSON)
 	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	ctx.Response.Header.SetStatusCode(200)
 
-	if !lbr.verifyGCAP() {
-		log.Println(ErrGreCaptcha.Error())
-		json.NewEncoder(ctx).Encode(&luckyBetFail{Ret: 1, Msg: ErrGreCaptcha.Error()})
-		return
-	}
+	//if !lbr.verifyGCAP() {
+	//	log.Println(ErrGreCaptcha.Error())
+	//	json.NewEncoder(ctx).Encode(&luckyBetFail{Ret: 1, Msg: ErrGreCaptcha.Error()})
+	//	return
+	//}
 
 	if !lbr.checkArgs() {
 		json.NewEncoder(ctx).Encode(&luckyBetFail{Ret: 1, Msg: ErrInvalidInput.Error()})
@@ -86,7 +83,7 @@ func LuckyBet(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 	}
 
 	ba := &database.Bet{
-		Account:     address,
+		Account:     lbr.account,
 		LuckyNumber: lbr.luckyNumberInt,
 		BetAmount:   lbr.betAmountInt,
 		BetTime:     time.Now().Unix(),

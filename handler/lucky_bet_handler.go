@@ -7,8 +7,6 @@ import (
 
 	"strings"
 
-	"fmt"
-
 	"bytes"
 
 	"github.com/bitly/go-simplejson"
@@ -134,16 +132,13 @@ func (l *luckyBetHandler) send() bool {
 	}
 
 	l.txHashEncoded = common.Base58Encode(txHash)
-	fmt.Println("complete : ", l.txHashEncoded)
 	return true
 }
 
 func (l *luckyBetHandler) pullResult() bool {
-	fmt.Println("ready to pull result")
 	var checkIndex int
 	for checkIndex < 30 {
 		time.Sleep(time.Second * 2)
-		fmt.Println("search for ", l.txHashEncoded)
 
 		if _, err := database.GetTxnByHash(l.txHashEncoded); err == nil {
 			log.Println("GetLuckyBet blockChain Hash: ", l.txHashEncoded)

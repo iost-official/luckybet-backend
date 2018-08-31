@@ -17,6 +17,7 @@ type Database struct {
 
 	todayWatcher
 	roundWatcher
+	blockWatcher
 
 	top10            []Top10
 	lastTopQueryTime time.Time
@@ -32,8 +33,27 @@ func NewDatabase(db *mgo.Database) *Database {
 	d.todayWatcher = todayWatcher{
 		d: d,
 	}
+
+	a, err := d.QueryLastResult()
+	if err != nil {
+		a = -1
+	}
+
 	d.roundWatcher = roundWatcher{
-		d: d,
+		d:              d,
+		localLastRound: a,
+	}
+
+	b, err := d.QueryTopBlocks(1)
+	var bb int
+	if len(b) == 0 || err != nil {
+		bb = 0
+	} else {
+		bb = b[0].Height
+	}
+	d.blockWatcher = blockWatcher{
+		d:              d,
+		localLastBlock: bb,
 	}
 	return d
 }
@@ -42,10 +62,10 @@ var robotAddressList = []string{"23hJissnRLwMcGFcPwyDxDfj9FaB5Z7LkY13n5TGZ2gL5"}
 
 type Result struct {
 	Round       int
-	Height      int
+	Height      int `json:"number"`
 	LuckyNumber int
-	Total       int
-	Win         int
+	Total       int `json:"user_number"`
+	Win         int `json:"k_number"`
 	Award       int64
 	Time        int64
 }
@@ -64,8 +84,8 @@ type Record struct {
 }
 
 type BlockInfo struct {
-	Height int
-	Time   int64
+	Height int   `json:"height"`
+	Time   int64 `json:"timestamp"`
 }
 
 type Bet struct {
@@ -120,6 +140,11 @@ func (d *Database) QueryRewards(round int) (rewards []Reward, err error) {
 
 func (d *Database) QueryBlockInfo(height int) (blockInfo *BlockInfo, err error) {
 	err = d.BlockInfo.Find(bson.M{"height": height}).One(&blockInfo)
+	return
+}
+
+func (d *Database) QueryTopBlocks(number int) (bis []BlockInfo, err error) {
+	err = d.BlockInfo.Find(bson.M{}).Sort("-height").Limit(number).All(&bis)
 	return
 }
 
