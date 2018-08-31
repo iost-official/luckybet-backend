@@ -19,7 +19,7 @@ func main() {
 	}
 	defer session.Close()
 
-	handler.D = database.NewDatabase(session.DB("test"))
+	handler.D = database.NewDatabase(session.DB("lucky_bet"))
 	go handler.D.Watch()
 
 	run()

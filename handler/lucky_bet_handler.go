@@ -5,9 +5,15 @@ import (
 	"strconv"
 	"time"
 
+	"strings"
+
+	"fmt"
+
+	"bytes"
+
 	"github.com/bitly/go-simplejson"
 	"github.com/iost-official/Go-IOS-Protocol/common"
-	"github.com/iost-official/luckybet-backend/iost"
+	"github.com/iost-official/luckybet-backend/database"
 	"github.com/valyala/fasthttp"
 )
 
@@ -71,7 +77,7 @@ func (l *luckyBetHandler) verifyGCAP() bool {
 func (l *luckyBetHandler) checkArgs() bool {
 	var err error
 	if l.account == "" || l.betAmount == "" || l.privKey == "" || l.luckyNumber == "" {
-		log.Println("GetLuckyBet nil params")
+		log.Println("GetLuckyBet nil params", l.account, l.betAmount, l.privKey, l.luckyNumber)
 		return false
 	}
 
@@ -87,7 +93,7 @@ func (l *luckyBetHandler) checkArgs() bool {
 		return false
 	}
 
-	if len(l.account) != 44 && len(l.account) != 45 {
+	if !strings.HasPrefix(l.account, "IOST") {
 		log.Println("GetLuckyBet invalid address")
 		return false
 	}
@@ -96,7 +102,7 @@ func (l *luckyBetHandler) checkArgs() bool {
 
 func (l *luckyBetHandler) checkBalance() int64 {
 
-	balance, err := iost.BalanceByKey(l.account)
+	balance, err := database.BalanceByKey(l.account)
 	if err != nil {
 		log.Println("GetLuckyBet GetBalanceByKey error:", err)
 	}
@@ -104,16 +110,18 @@ func (l *luckyBetHandler) checkBalance() int64 {
 }
 
 func (l *luckyBetHandler) send() bool {
+
 	var (
 		txHash        []byte
 		transferIndex int
 	)
 	for transferIndex < 3 {
-		txHash, err := iost.SendBet(l.account, l.privKey, l.luckyNumberInt, l.betAmountInt)
+		var err error
+		txHash, err = database.SendBet(l.account, l.privKey, l.luckyNumberInt, l.betAmountInt)
 		if err != nil {
 			log.Println("GetLuckyBet SendBet error:", err)
 		}
-		if txHash != nil {
+		if txHash != nil && !bytes.Equal(txHash, []byte("")) {
 			break
 		}
 		transferIndex++
@@ -126,14 +134,18 @@ func (l *luckyBetHandler) send() bool {
 	}
 
 	l.txHashEncoded = common.Base58Encode(txHash)
+	fmt.Println("complete : ", l.txHashEncoded)
 	return true
 }
 
 func (l *luckyBetHandler) pullResult() bool {
+	fmt.Println("ready to pull result")
 	var checkIndex int
 	for checkIndex < 30 {
 		time.Sleep(time.Second * 2)
-		if _, err := iost.GetTxnByHash(l.txHashEncoded); err == nil {
+		fmt.Println("search for ", l.txHashEncoded)
+
+		if _, err := database.GetTxnByHash(l.txHashEncoded); err == nil {
 			log.Println("GetLuckyBet blockChain Hash: ", l.txHashEncoded)
 			break
 		}

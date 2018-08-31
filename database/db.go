@@ -23,12 +23,19 @@ type Database struct {
 }
 
 func NewDatabase(db *mgo.Database) *Database {
-	return &Database{
+	d := &Database{
 		Results:   db.C("results"),
 		Rewards:   db.C("rewards"),
 		BlockInfo: db.C("blocks"),
 		Bets:      db.C("bets"),
 	}
+	d.todayWatcher = todayWatcher{
+		d: d,
+	}
+	d.roundWatcher = roundWatcher{
+		d: d,
+	}
+	return d
 }
 
 var robotAddressList = []string{"23hJissnRLwMcGFcPwyDxDfj9FaB5Z7LkY13n5TGZ2gL5"}

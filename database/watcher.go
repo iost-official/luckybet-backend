@@ -2,13 +2,11 @@ package database
 
 import (
 	"time"
-
-	"github.com/iost-official/luckybet-backend/iost"
 )
 
 func (d *Database) Watch() {
 	go d.todayWatcher.watch()
-
+	go d.roundWatcher.watch()
 }
 
 type todayWatcher struct {
@@ -42,13 +40,13 @@ type roundWatcher struct {
 
 func (rw *roundWatcher) watch() {
 	for {
-		remoteLastRound, err := iost.Round()
+		remoteLastRound, err := Round()
 		if err != nil {
 			panic(err)
 		}
 
 		for i := rw.localLastRound; i < remoteLastRound; i++ {
-			r, err := iost.Result(i)
+			r, err := IostResult(i)
 			if err != nil {
 				panic(err)
 			}

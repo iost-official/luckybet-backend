@@ -1,25 +1,27 @@
-package iost
+package database
 
 import (
 	"strconv"
 
 	"encoding/json"
 
+	"fmt"
+
+	"time"
+
 	"github.com/bitly/go-simplejson"
+	"github.com/iost-official/Go-IOS-Protocol/account"
+	"github.com/iost-official/Go-IOS-Protocol/common"
 	"github.com/iost-official/Go-IOS-Protocol/core/tx"
-	"github.com/iost-official/luckybet-backend/database"
+	"github.com/iost-official/Go-IOS-Protocol/rpc"
 	"github.com/valyala/fasthttp"
 )
 
 var (
-	LocalIServer = "localhost:30301/"
+	LocalIServer = "http://localhost:30301/"
 	Client       = fasthttp.Client{}
-	Contract     = "ContractFPcQWT3io6DSekcoY72waon3racgwbdPp5ULScC1W9A5"
+	Contract     = "Contract2qzmSGZA6cup8BNhzhbss5sP6ivy4EQQHjaVuB2q2GTw"
 )
-
-func init() {
-
-}
 
 func BalanceByKey(address string) (int64, error) {
 
@@ -28,11 +30,36 @@ func BalanceByKey(address string) (int64, error) {
 		return 0, err
 	}
 
-	return j.Get("balance").Int64()
+	str, err := j.Get("balance").String()
+	if err != nil {
+		return 0, err
+	}
+	return strconv.ParseInt(str, 10, 64)
 }
 
 func SendBet(address, privKey string, luckyNumberInt, betAmountInt int) ([]byte, error) {
-	return []byte("txhash"), nil
+	act := tx.NewAction(Contract, "bet", fmt.Sprintf(`["%v",%d,%d]`, address, luckyNumberInt, betAmountInt))
+	t := tx.NewTx([]*tx.Action{&act}, nil, 10000, 1, time.Now().UnixNano()+10*time.Second.Nanoseconds())
+	a, err := account.NewAccount(common.Base58Decode(privKey))
+	if err != nil {
+		return nil, err
+	}
+
+	t, err = tx.SignTx(t, a)
+	if err != nil {
+		return nil, err
+	}
+
+	b := rpc.RawTxReq{
+		Data: t.Encode(),
+	}
+	j, err := json.Marshal(b)
+	_, err = post(LocalIServer+"/sendRawTx", j)
+	if err != nil {
+		return nil, err
+	}
+
+	return t.Hash(), nil
 }
 
 func GetTxnByHash(hash string) (*tx.Tx, error) {
@@ -61,7 +88,7 @@ func Round() (int, error) {
 	return strconv.Atoi(ss[1:])
 }
 
-func Result(round int) (*database.Result, error) {
+func IostResult(round int) (*Result, error) {
 	j, err := value("result" + strconv.Itoa(round))
 	if err != nil {
 		return nil, err
@@ -70,14 +97,15 @@ func Result(round int) (*database.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	var res database.Result
+	var res Result
 	err = json.Unmarshal(js, &res)
-	return res, err
+	return &res, err
 }
 
 func value(key string) (*simplejson.Json, error) {
 	j, err := get(LocalIServer + "getState/" + Contract + "-" + key)
 	if err != nil {
+		fmt.Println("get err :", err)
 		return nil, err
 	}
 
@@ -102,19 +130,17 @@ func get(url string) (*simplejson.Json, error) {
 	return simplejson.NewJson(res.Body())
 }
 
-func post(url string, body map[string]string) (*simplejson.Json, error) {
+func post(url string, body []byte) (*simplejson.Json, error) {
 	req := fasthttp.AcquireRequest()
 	res := fasthttp.AcquireResponse()
 
 	defer fasthttp.ReleaseRequest(req)
 	defer fasthttp.ReleaseResponse(res)
 
-	j, _ := json.Marshal(body)
-
 	req.SetRequestURI(url)
 	req.Header.SetMethod("POST")
 	req.Header.Set("Content-Type", "application/json")
-	req.SetBody(j)
+	req.SetBody(body)
 
 	err := Client.Do(req, res)
 	if err != nil {
