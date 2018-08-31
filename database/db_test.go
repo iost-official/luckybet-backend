@@ -17,15 +17,10 @@ func Init(t *testing.T) (*Database, *mgo.Session) {
 		t.Fatal(err)
 	}
 
-	d := Database{
-		Results:   session.DB("test").C("results"),
-		Rewards:   session.DB("test").C("rewards"),
-		BlockInfo: session.DB("test").C("blocks"),
-		Bets:      session.DB("test").C("bets"),
+	db := session.DB("test")
 
-		Todays1stRound: 0,
-	}
-	return &d, session
+	d := NewDatabase(db)
+	return d, session
 }
 
 func TestGenerate(t *testing.T) {

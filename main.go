@@ -10,6 +10,8 @@ import (
 
 var router fasthttprouter.Router
 
+var contractAddress = ""
+
 func main() {
 	session, err := mgo.Dial("localhost:27017")
 	if err != nil {
@@ -17,14 +19,8 @@ func main() {
 	}
 	defer session.Close()
 
-	handler.D = &database.Database{
-		Results:   session.DB("test").C("results"),
-		Rewards:   session.DB("test").C("rewards"),
-		BlockInfo: session.DB("test").C("blocks"),
-		Bets:      session.DB("test").C("bets"),
-
-		Todays1stRound: 0,
-	}
+	handler.D = database.NewDatabase(session.DB("test"))
+	go handler.D.Watch()
 
 	run()
 }
