@@ -12,6 +12,7 @@ import (
 	"github.com/bitly/go-simplejson"
 	"github.com/iost-official/Go-IOS-Protocol/common"
 	"github.com/iost-official/luckybet-backend/database"
+	"github.com/iost-official/luckybet-backend/nonce"
 	"github.com/valyala/fasthttp"
 )
 
@@ -29,6 +30,8 @@ type luckyBetHandler struct {
 
 	txHash        []byte
 	txHashEncoded string
+
+	nonce int
 }
 
 func (l *luckyBetHandler) verifyGCAP() bool {
@@ -113,9 +116,12 @@ func (l *luckyBetHandler) send() bool {
 		txHash        []byte
 		transferIndex int
 	)
+
+	l.nonce = nonce.Instance().Get(D)
+
 	for transferIndex < 3 {
 		var err error
-		txHash, err = database.SendBet(l.account, l.privKey, l.luckyNumberInt, l.betAmountInt)
+		txHash, err = database.SendBet(l.account, l.privKey, l.luckyNumberInt, l.betAmountInt, l.nonce)
 		if err != nil {
 			log.Println("GetLuckyBet SendBet error:", err)
 		}
@@ -153,4 +159,16 @@ func (l *luckyBetHandler) pullResult() bool {
 	}
 	log.Println("GetLuckyBet checkTxHash success.")
 	return true
+}
+
+func (l *luckyBetHandler) insert() {
+	ba := &database.Bet{
+		Account:     l.account,
+		LuckyNumber: l.luckyNumberInt,
+		BetAmount:   l.betAmountInt,
+		BetTime:     time.Now().Unix(),
+		ClientIp:    l.remoteip,
+		Nonce:       l.nonce,
+	}
+	D.Insert(ba)
 }

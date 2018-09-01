@@ -6,9 +6,7 @@ import (
 	"encoding/json"
 
 	"encoding/hex"
-	"time"
 
-	"github.com/iost-official/luckybet-backend/database"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttprouter"
 )
@@ -82,14 +80,7 @@ func LuckyBet(ctx *fasthttp.RequestCtx, _ fasthttprouter.Params) {
 		json.NewEncoder(ctx).Encode(&luckyBet{4, ErrOutOfCheckTxHash.Error(), lbr.txHashEncoded})
 	}
 
-	ba := &database.Bet{
-		Account:     lbr.account,
-		LuckyNumber: lbr.luckyNumberInt,
-		BetAmount:   lbr.betAmountInt,
-		BetTime:     time.Now().Unix(),
-		ClientIp:    lbr.remoteip,
-	}
-	D.Insert(ba)
+	lbr.insert()
 
 	json.NewEncoder(ctx).Encode(&luckyBet{0, hex.EncodeToString(lbr.txHash), lbr.txHashEncoded})
 

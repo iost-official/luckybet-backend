@@ -45,11 +45,11 @@ func TestGenerate(t *testing.T) {
 	}
 
 	for i := 2; i < 12; i++ {
-		d.Insert(&Reward{
+		d.Insert(&Record{
 			Round:   i / 2,
 			Account: "player" + strconv.Itoa(i),
-			Reward:  int64(i),
-			Times:   1,
+			Win:     int64(i),
+			Nonce:   1,
 		})
 	}
 
@@ -78,7 +78,7 @@ func TestReward(t *testing.T) {
 	d, s := Init(t)
 	defer s.Close()
 
-	rtn, err := d.QueryRewards(3)
+	rtn, err := d.QueryRoundInfo(3)
 	if err != nil {
 		t.Fatal(err)
 	}

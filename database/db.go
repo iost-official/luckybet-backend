@@ -5,6 +5,8 @@ import (
 
 	"time"
 
+	"fmt"
+
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -70,17 +72,19 @@ type Result struct {
 	Time        int64
 }
 
-type Reward struct {
-	Round   int
-	Account string
-	Reward  int64
-	Times   int
-}
+//type Reward struct {
+//	Round   int
+//	Account string
+//	Reward  int64
+//	Times   int
+//}
 
 type Record struct {
 	Round   int
 	Account string
 	Bet     int64
+	Win     int64
+	Nonce   int
 }
 
 type BlockInfo struct {
@@ -89,11 +93,25 @@ type BlockInfo struct {
 }
 
 type Bet struct {
-	Account     string `json:"Account"`
-	LuckyNumber int    `json:"lucky_number"`
-	BetAmount   int    `json:"bet_amount"`
-	BetTime     int64  `json:"bet_time"`
-	ClientIp    string `json:"client_ip"`
+	Account     string     `json:"Account"`
+	LuckyNumber int        `json:"lucky_number"`
+	BetAmount   int        `json:"bet_amount"`
+	BetTime     int64      `json:"bet_time"`
+	ClientIp    string     `json:"client_ip"`
+	Nonce       int        `json:"nonce"`
+	Result      *BetResult `json:"result"`
+}
+
+type BetResult struct {
+	Round  int   `json:"round"`
+	IsWin  bool  `json:"is_win"`
+	Amount int64 `json:"Amount"`
+}
+
+type RoundInfo struct {
+	Account  string `json:"_id"`
+	Iost     int64  `json:"totalWinIost"`
+	WinTimes int    `json:"totalWinTimes"`
 }
 
 type Top10 struct {
@@ -108,8 +126,6 @@ func (d *Database) Insert(i interface{}) error {
 	switch i.(type) {
 	case *Result:
 		d.Results.Insert(i.(*Result))
-	case *Reward:
-		d.Rewards.Insert(i.(*Reward))
 	case *Record:
 		d.Rewards.Insert(i.(*Record))
 	case *BlockInfo:
@@ -120,6 +136,27 @@ func (d *Database) Insert(i interface{}) error {
 		return errors.New("illegal type")
 	}
 	return nil
+}
+
+func (d *Database) UpdateBets(r *Record, ln int) error {
+	//br := BetResult{
+	//	Round:  r.Round,
+	//	IsWin:  r.Win == 0,
+	//	Amount: r.Win,
+	//}
+	res := bson.M{
+		"round":  r.Round,
+		"is_win": r.Win == 0,
+		"Amount": r.Win,
+	}
+
+	fmt.Println("db150", res, r)
+
+	err := d.Bets.Update(bson.M{"nonce": r.Nonce}, bson.M{"$set": bson.M{"result": res}})
+	if err != nil {
+		fmt.Println("db156", err)
+	}
+	return err
 }
 
 func (d *Database) QueryResult(round, limit int) (result []Result, err error) {
@@ -133,8 +170,28 @@ func (d *Database) QueryLastResult() (last int, err error) {
 	return result.Round, err
 }
 
-func (d *Database) QueryRewards(round int) (rewards []Reward, err error) {
-	err = d.Rewards.Find(bson.M{"round": round, "times": bson.M{"$gte": 1}}).All(&rewards)
+func (d *Database) QueryRoundInfo(round int) (roundInfo []RoundInfo, err error) {
+	queryPip := []bson.M{
+		{
+			"$match": bson.M{
+				"round": round,
+			},
+		},
+		{
+			"$group": bson.M{
+				"_id":      "$account",
+				"Account":  "$account",
+				"IOST":     bson.M{"$sum": "$reward"},
+				"WinTimes": bson.M{"$sum": 1},
+			},
+		},
+		{
+			"$sort": bson.M{
+				"IOST": -1,
+			},
+		},
+	}
+	err = d.Rewards.Pipe(queryPip).All(&roundInfo)
 	return
 }
 
@@ -149,13 +206,22 @@ func (d *Database) QueryTopBlocks(number int) (bis []BlockInfo, err error) {
 }
 
 func (d *Database) QueryBet(address string, bias, length int) (bets []*Bet, err error) {
-	err = d.Bets.Find(bson.M{"address": address}).Sort("-bettime").Skip(bias).Limit(length).All(&bets)
+	err = d.Bets.Find(bson.M{"account": address}).Sort("-bettime").Skip(bias).Limit(length).All(&bets)
 	return
 }
 
 func (d *Database) QueryBetCount(address string) int {
-	n, _ := d.Bets.Find(bson.M{"address": address}).Count()
+	n, _ := d.Bets.Find(bson.M{"account": address}).Count()
 	return n
+}
+
+func (d *Database) QueryNonce() int {
+	var bet Bet
+	err := d.Bets.Find(bson.M{}).Sort("-nonce").One(&bet)
+	if err != nil {
+		return 0
+	}
+	return bet.Nonce + 1
 }
 
 func (d *Database) QueryTodays1stRound() int {
@@ -188,7 +254,7 @@ func (d *Database) QueryTop10(t int64) (top []Top10, err error) {
 				"_id":           "$account",
 				"totalWinIOST":  bson.M{"$sum": "$reward"},
 				"totalBet":      bson.M{"$sum": "$bet"},
-				"totalWinTimes": bson.M{"$sum": "$times"},
+				"totalWinTimes": bson.M{"$sum": 1},
 			},
 		},
 		{

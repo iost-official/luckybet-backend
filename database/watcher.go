@@ -1,6 +1,7 @@
 package database
 
 import (
+	"sync"
 	"time"
 )
 
@@ -39,6 +40,7 @@ func today() time.Time {
 type roundWatcher struct {
 	d              *Database
 	localLastRound int
+	once           sync.Once
 }
 
 func (rw *roundWatcher) watch() {
@@ -48,8 +50,15 @@ func (rw *roundWatcher) watch() {
 			panic(err)
 		}
 
+		rw.once.Do(func() {
+			rw.localLastRound, err = rw.d.QueryLastResult()
+			if err != nil {
+				rw.localLastRound = 0
+			}
+		})
+
 		for i := rw.localLastRound + 1; i < remoteLastRound; i++ {
-			r, re, rew, err := IostResult(i)
+			r, re, err := IostResult(i)
 			if err != nil {
 				panic(err)
 			}
@@ -64,9 +73,7 @@ func (rw *roundWatcher) watch() {
 			rw.d.Insert(r)
 
 			for _, rec := range re {
-				rw.d.Insert(&rec)
-			}
-			for _, rec := range rew {
+				rw.d.UpdateBets(&rec, r.LuckyNumber)
 				rw.d.Insert(&rec)
 			}
 		}
