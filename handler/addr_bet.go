@@ -39,6 +39,10 @@ func AddressBet(ctx *fasthttp.RequestCtx, params fasthttprouter.Params) {
 	}
 	skip := (pageInt - 1) * limit
 	top5Bet, err := D.QueryBet(address, skip, limit)
+	//if len(top5Bet) > 1 {
+	//	fmt.Printf("addrbet42 %+v\n", top5Bet[1].Result)
+	//
+	//}
 	if err != nil {
 		fmt.Println(err)
 		ctx.Error(err.Error(), fasthttp.StatusInternalServerError)

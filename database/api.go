@@ -20,7 +20,7 @@ import (
 var (
 	LocalIServer = "http://localhost:30301/"
 	Client       = fasthttp.Client{}
-	Contract     = "Contract" + "DWeSxLcbuCseNtMk8GgZEVWAthQiUB7q8BekKjRqWtT3"
+	Contract     = "Contract" + "Gak5X8XboMvDc7Gc3A45fcvTmsiLFNAjJ6sVPpKByKxd"
 )
 
 func BalanceByKey(address string) (int64, error) {
@@ -174,11 +174,15 @@ func IostResult(round int) (*Result, []Record, error) {
 		if !ok {
 			rec.Win = 0
 		} else {
-			w, err := win.(json.Number).Int64()
-			if err != nil {
-				return nil, nil, err
+			w, ok := win.(string)
+			if !ok {
+				panic(180)
 			}
-			rec.Win = w
+			w2, err := strconv.ParseInt(w, 10, 64)
+			if err != nil {
+				panic(183)
+			}
+			rec.Win = w2
 		}
 
 		rec.Nonce = int(n)
@@ -209,6 +213,7 @@ func IostResult(round int) (*Result, []Record, error) {
 
 func value(key string) (*simplejson.Json, error) {
 	j, err := get(LocalIServer + "getState/" + Contract + "-" + key)
+	//fmt.Println("api212", LocalIServer+"getState/"+Contract+"-"+key)
 	if err != nil {
 		fmt.Println("get err :", err)
 		return nil, err

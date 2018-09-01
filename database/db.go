@@ -104,7 +104,7 @@ type Bet struct {
 
 type BetResult struct {
 	Round  int   `json:"round"`
-	IsWin  bool  `json:"is_win"`
+	Is_win bool  `json:"is_win"`
 	Amount int64 `json:"Amount"`
 }
 
@@ -146,11 +146,9 @@ func (d *Database) UpdateBets(r *Record, ln int) error {
 	//}
 	res := bson.M{
 		"round":  r.Round,
-		"is_win": r.Win == 0,
-		"Amount": r.Win,
+		"is_win": r.Win > 0,
+		"amount": int(r.Win),
 	}
-
-	fmt.Println("db150", res, r)
 
 	err := d.Bets.Update(bson.M{"nonce": r.Nonce}, bson.M{"$set": bson.M{"result": res}})
 	if err != nil {
