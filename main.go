@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"os"
+
 	"github.com/iost-official/luckybet-backend/database"
 	"github.com/iost-official/luckybet-backend/handler"
 	"github.com/valyala/fasthttp"
@@ -12,16 +14,19 @@ import (
 
 var router fasthttprouter.Router
 
-var contractAddress = "ur4VMyFRuiCH6VzaMEdySxT1uD1UwscDfqrCCTggEdU"
+//var contractAddress = "3uhVHYjKoK6XXwmG4H2TKPX5Fd8BvfZdKZU9U8a6EMMp"
 
 func main() {
+
 	session, err := mgo.Dial("localhost:27017")
 	if err != nil {
 		panic(err)
 	}
 	defer session.Close()
 
-	database.Contract = "Contract" + contractAddress
+	//database.Contract = "Contract" + contractAddress
+
+	database.Contract = os.Args[0]
 
 	err = session.DB("lucky_bet").C("bets").EnsureIndexKey("account", "nonce", "bettime")
 	if err != nil {

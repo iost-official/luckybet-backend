@@ -1,6 +1,7 @@
 package database
 
 import (
+	"log"
 	"sync"
 	"time"
 )
@@ -47,7 +48,7 @@ func (rw *roundWatcher) watch() {
 	for {
 		remoteLastRound, err := Round()
 		if err != nil {
-			panic(err)
+			log.Fatal("watch round fatal: ", err.Error())
 		}
 
 		rw.once.Do(func() {
