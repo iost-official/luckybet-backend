@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"log"
 
 	"encoding/json"
 
@@ -54,11 +55,11 @@ func LuckyBet(ctx *fasthttp.RequestCtx, _ fasthttprouter.Params) {
 	ctx.Response.Header.Set("Access-Control-Allow-Origin", "*")
 	ctx.Response.Header.SetStatusCode(200)
 
-	//if !lbr.verifyGCAP() {
-	//	log.Println(ErrGreCaptcha.Error())
-	//	json.NewEncoder(ctx).Encode(&luckyBetFail{Ret: 1, Msg: ErrGreCaptcha.Error()})
-	//	return
-	//}
+	if !lbr.verifyGCAP() {
+		log.Println(ErrGreCaptcha.Error())
+		json.NewEncoder(ctx).Encode(&luckyBetFail{Ret: 1, Msg: ErrGreCaptcha.Error()})
+		return
+	}
 
 	if !lbr.checkArgs() {
 		json.NewEncoder(ctx).Encode(&luckyBetFail{Ret: 1, Msg: ErrInvalidInput.Error()})
