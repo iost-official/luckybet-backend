@@ -28,6 +28,8 @@ func main() {
 
 	database.Contract = os.Args[0]
 
+	database.LocalIServer = "http://" + os.Args[1]
+
 	err = session.DB("lucky_bet").C("bets").EnsureIndexKey("account", "nonce", "bettime")
 	if err != nil {
 		fmt.Println(err)
