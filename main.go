@@ -26,9 +26,11 @@ func main() {
 
 	//database.Contract = "Contract" + contractAddress
 
-	database.Contract = os.Args[0]
+	database.Contract = os.Args[1]
 
-	database.LocalIServer = "http://" + os.Args[1]
+	database.LocalIServer = "http://" + os.Args[2]
+
+	//fmt.Println(database.Contract, database.LocalIServer)
 
 	err = session.DB("lucky_bet").C("bets").EnsureIndexKey("account", "nonce", "bettime")
 	if err != nil {
