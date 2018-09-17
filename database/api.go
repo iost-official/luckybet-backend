@@ -16,7 +16,6 @@ import (
 	"github.com/iost-official/Go-IOS-Protocol/common"
 	"github.com/iost-official/Go-IOS-Protocol/core/tx"
 	"github.com/iost-official/Go-IOS-Protocol/crypto"
-	"github.com/iost-official/Go-IOS-Protocol/rpc"
 	"github.com/valyala/fasthttp"
 )
 
@@ -40,6 +39,10 @@ func BalanceByKey(address string) (int64, error) {
 	return strconv.ParseInt(str, 10, 64)
 }
 
+type RawTxReq struct {
+	Data []byte `json:"data,omitempty"`
+}
+
 func SendBet(address, privKey string, luckyNumberInt, betAmountInt int, nonce int, time int64) ([]byte, error) {
 	act := tx.NewAction(Contract, "bet", fmt.Sprintf(`["%v",%d,%d,%d]`, address, luckyNumberInt, betAmountInt, nonce))
 	t := tx.NewTx([]*tx.Action{&act}, nil, 10000, 1, time)
@@ -53,7 +56,7 @@ func SendBet(address, privKey string, luckyNumberInt, betAmountInt int, nonce in
 		return nil, err
 	}
 
-	b := rpc.RawTxReq{
+	b := RawTxReq{
 		Data: t.Encode(),
 	}
 	j, err := json.Marshal(b)
