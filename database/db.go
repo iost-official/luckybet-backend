@@ -5,8 +5,6 @@ import (
 
 	"time"
 
-	"fmt"
-
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -152,7 +150,6 @@ func (d *Database) UpdateBets(r *Record, ln int) error {
 
 	err := d.Bets.Update(bson.M{"nonce": r.Nonce}, bson.M{"$set": bson.M{"result": res}})
 	if err != nil {
-		fmt.Println("db156", err)
 	}
 	return err
 }

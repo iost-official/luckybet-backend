@@ -7,20 +7,23 @@ import (
 
 	"fmt"
 
-	"time"
+	"errors"
+
+	"log"
 
 	"github.com/bitly/go-simplejson"
 	"github.com/iost-official/Go-IOS-Protocol/account"
 	"github.com/iost-official/Go-IOS-Protocol/common"
 	"github.com/iost-official/Go-IOS-Protocol/core/tx"
+	"github.com/iost-official/Go-IOS-Protocol/crypto"
 	"github.com/iost-official/Go-IOS-Protocol/rpc"
 	"github.com/valyala/fasthttp"
 )
 
 var (
-	LocalIServer = "http://localhost:30301/"
+	LocalIServer = "http://13.237.151.211:30001/"
 	Client       = fasthttp.Client{}
-	Contract     = "Contract" + "Gak5X8XboMvDc7Gc3A45fcvTmsiLFNAjJ6sVPpKByKxd"
+	Contract     = "Contract" + "8YTzdYXTwyvguquVSML3G5R4znW3eQYKCaku87WLuZwE"
 )
 
 func BalanceByKey(address string) (int64, error) {
@@ -37,10 +40,10 @@ func BalanceByKey(address string) (int64, error) {
 	return strconv.ParseInt(str, 10, 64)
 }
 
-func SendBet(address, privKey string, luckyNumberInt, betAmountInt int, nonce int) ([]byte, error) {
+func SendBet(address, privKey string, luckyNumberInt, betAmountInt int, nonce int, time int64) ([]byte, error) {
 	act := tx.NewAction(Contract, "bet", fmt.Sprintf(`["%v",%d,%d,%d]`, address, luckyNumberInt, betAmountInt, nonce))
-	t := tx.NewTx([]*tx.Action{&act}, nil, 10000, 1, time.Now().UnixNano()+10*time.Second.Nanoseconds())
-	a, err := account.NewAccount(common.Base58Decode(privKey))
+	t := tx.NewTx([]*tx.Action{&act}, nil, 10000, 1, time)
+	a, err := account.NewAccount(common.Base58Decode(privKey), crypto.Ed25519)
 	if err != nil {
 		return nil, err
 	}
@@ -83,6 +86,9 @@ func BlockChainHeight() (int, error) {
 	}
 
 	s, err := j.Get("height").String()
+	if err != nil {
+		return 0, err
+	}
 
 	return strconv.Atoi(s)
 }
@@ -176,11 +182,13 @@ func IostResult(round int) (*Result, []Record, error) {
 		} else {
 			w, ok := win.(string)
 			if !ok {
-				panic(180)
+				log.Println("invalid reward ", win)
+				return nil, nil, errors.New("invalid reward")
 			}
 			w2, err := strconv.ParseInt(w, 10, 64)
 			if err != nil {
-				panic(183)
+				log.Println("invalid reward ", w)
+				return nil, nil, errors.New("invalid reward")
 			}
 			rec.Win = w2
 		}
@@ -188,25 +196,6 @@ func IostResult(round int) (*Result, []Record, error) {
 		rec.Nonce = int(n)
 		records = append(records, rec)
 	}
-
-	//rewards := make([]Reward, 0)
-	//b := jbuf.Get("rewards").MustArray([]interface{}{})
-	//for _, m := range b {
-	//	rew := Reward{
-	//		Round: round,
-	//	}
-	//	rew.Account = m.(map[string]interface{})["account"].(string)
-	//	rew.Reward, err = m.(map[string]interface{})["reward"].(json.Number).Int64()
-	//	if err != nil {
-	//		return nil, nil, err
-	//	}
-	//	t, err := m.(map[string]interface{})["times"].(json.Number).Int64()
-	//	if err != nil {
-	//		return nil, nil, err
-	//	}
-	//	rew.Times = int(t)
-	//	rewards = append(rewards, rew)
-	//}
 
 	return &res, records, err
 }
@@ -234,6 +223,7 @@ func get(url string) (*simplejson.Json, error) {
 
 	err := Client.Do(req, res)
 	if err != nil {
+
 		return nil, err
 	}
 

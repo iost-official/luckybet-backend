@@ -61,7 +61,8 @@ func (rw *roundWatcher) watch() {
 		for i := rw.localLastRound + 1; i < remoteLastRound; i++ {
 			r, re, err := IostResult(i)
 			if err != nil {
-				panic(err)
+				time.Sleep(time.Second)
+				continue
 			}
 
 			bi, err := rw.d.QueryBlockInfo(r.Height)
@@ -91,21 +92,25 @@ type blockWatcher struct {
 }
 
 func (bw *blockWatcher) watch() {
+Outer:
 	for {
+		time.Sleep(time.Second)
+
 		remoteHeight, err := BlockChainHeight()
 		if err != nil {
-			panic(err)
+			log.Println("watch failed", err)
+			continue Outer
 		}
 
 		for i := bw.localLastBlock + 1; i <= remoteHeight; i++ {
 			bi, err := Block(i)
 			if err != nil {
-				panic(err)
+				log.Println("pull block info failed", err)
+				continue Outer
 			}
 			bw.d.Insert(bi)
 		}
 		bw.localLastBlock = remoteHeight
 
-		time.Sleep(time.Second)
 	}
 }

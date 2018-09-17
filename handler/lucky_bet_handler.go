@@ -119,9 +119,11 @@ func (l *luckyBetHandler) send() bool {
 
 	l.nonce = nonce.Instance().Get(D)
 
+	timestamp := time.Now().UnixNano() + 10*time.Second.Nanoseconds()
+
 	for transferIndex < 3 {
 		var err error
-		txHash, err = database.SendBet(l.account, l.privKey, l.luckyNumberInt, l.betAmountInt, l.nonce)
+		txHash, err = database.SendBet(l.account, l.privKey, l.luckyNumberInt, l.betAmountInt, l.nonce, timestamp)
 		if err != nil {
 			log.Println("GetLuckyBet SendBet error:", err)
 		}
