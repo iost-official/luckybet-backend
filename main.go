@@ -30,8 +30,6 @@ func main() {
 
 	database.LocalIServer = "http://" + os.Args[2]
 
-	//fmt.Println(database.Contract, database.LocalIServer)
-
 	err = session.DB("lucky_bet").C("bets").EnsureIndexKey("account", "nonce", "bettime")
 	if err != nil {
 		fmt.Println(err)
@@ -50,7 +48,10 @@ func main() {
 	}
 
 	handler.D = database.NewDatabase(session.DB("lucky_bet"))
-	go handler.D.Watch()
+
+	if len(os.Args) > 3 {
+		go handler.D.Watch()
+	}
 
 	run()
 }
