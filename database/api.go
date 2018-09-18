@@ -226,7 +226,7 @@ func get(url string) (*simplejson.Json, error) {
 
 	err := Client.Do(req, res)
 	if err != nil {
-		log.Println("do error: ", err)
+		log.Println("do error: ", url, err)
 		return nil, err
 	}
 
