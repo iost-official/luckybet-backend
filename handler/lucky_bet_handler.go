@@ -89,8 +89,8 @@ func (l *luckyBetHandler) checkArgs() bool {
 	}
 
 	l.betAmountInt, err = strconv.ParseInt(l.betAmount, 10, 64)
-	if err != nil || (l.betAmountInt <= 0 || l.betAmountInt > 5) {
-		log.Println("GetLuckyBet invalud bet amount")
+	if err != nil || (l.betAmountInt <= 0 || l.betAmountInt > 500000000) {
+		log.Println("GetLuckyBet invalid bet amount")
 		return false
 	}
 
