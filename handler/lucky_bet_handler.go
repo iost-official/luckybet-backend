@@ -26,7 +26,7 @@ type luckyBetHandler struct {
 	remoteip string // ctx.Request.Header.Peek("Iost_Remote_Addr")
 
 	luckyNumberInt int
-	betAmountInt   int
+	betAmountInt   int64
 
 	txHash        []byte
 	txHashEncoded string
@@ -88,7 +88,7 @@ func (l *luckyBetHandler) checkArgs() bool {
 		return false
 	}
 
-	l.betAmountInt, err = strconv.Atoi(l.betAmount)
+	l.betAmountInt, err = strconv.ParseInt(l.betAmount, 10, 64)
 	if err != nil || (l.betAmountInt <= 0 || l.betAmountInt > 5) {
 		log.Println("GetLuckyBet invalud bet amount")
 		return false

@@ -43,7 +43,7 @@ type RawTxReq struct {
 	Data []byte `json:"data,omitempty"`
 }
 
-func SendBet(address, privKey string, luckyNumberInt, betAmountInt int, nonce int, time int64) ([]byte, error) {
+func SendBet(address, privKey string, luckyNumberInt int, betAmountInt int64, nonce int, time int64) ([]byte, error) {
 	act := tx.NewAction(Contract, "bet", fmt.Sprintf(`["%v",%d,%d,%d]`, address, luckyNumberInt, betAmountInt, nonce))
 	t := tx.NewTx([]*tx.Action{&act}, nil, 10000, 1, time)
 	a, err := account.NewAccount(common.Base58Decode(privKey), crypto.Ed25519)

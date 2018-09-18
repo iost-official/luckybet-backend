@@ -33,7 +33,14 @@ type Config struct {
 
 func main() {
 
-	yamlFile, err := ioutil.ReadFile(os.Args[1])
+	var cf string
+	if len(os.Args) >= 2 {
+		cf = os.Args[1]
+	} else {
+		cf = "config.yml"
+	}
+
+	yamlFile, err := ioutil.ReadFile(cf)
 
 	var config Config
 

@@ -93,7 +93,7 @@ type BlockInfo struct {
 type Bet struct {
 	Account     string     `json:"Account"`
 	LuckyNumber int        `json:"lucky_number"`
-	BetAmount   int        `json:"bet_amount"`
+	BetAmount   int64      `json:"bet_amount"`
 	BetTime     int64      `json:"bet_time"`
 	ClientIp    string     `json:"client_ip"`
 	Nonce       int        `json:"nonce"`
