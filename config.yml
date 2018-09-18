@@ -4,5 +4,5 @@ blockchain :
   contract : ContractDhFRttX6YeNgFxwDrK2AVfdicoJZqW7s7VZjpMnw8xdq
   server : http://54.95.136.154:30001/
 database :
-  server : localhost:27017
+  server : 172.31.40.196:27017
   name : lucky_bet
