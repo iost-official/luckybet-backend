@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 
-	"os"
+	"io/ioutil"
 
+	"github.com/go-yaml/yaml"
 	"github.com/iost-official/luckybet-backend/database"
 	"github.com/iost-official/luckybet-backend/handler"
 	"github.com/valyala/fasthttp"
@@ -14,21 +15,41 @@ import (
 
 var router fasthttprouter.Router
 
-//var contractAddress = "3uhVHYjKoK6XXwmG4H2TKPX5Fd8BvfZdKZU9U8a6EMMp"
+type Config struct {
+	Main struct {
+		Watch bool
+	}
+	Blockchain struct {
+		Contract string
+		Server   string
+	}
+	Database struct {
+		Server string
+		Name   string
+	}
+}
 
 func main() {
 
-	session, err := mgo.Dial("localhost:27017")
+	yamlFile, err := ioutil.ReadFile("config.yml")
+
+	var config Config
+
+	err = yaml.Unmarshal(yamlFile, &config)
+	fmt.Println(config)
+
+	if err != nil {
+		panic(err)
+	}
+
+	session, err := mgo.Dial(config.Database.Server)
 	if err != nil {
 		panic(err)
 	}
 	defer session.Close()
 
-	//database.Contract = "Contract" + contractAddress
-
-	database.Contract = os.Args[1]
-
-	database.LocalIServer = "http://" + os.Args[2]
+	database.Contract = config.Blockchain.Contract
+	database.LocalIServer = config.Blockchain.Server
 
 	err = session.DB("lucky_bet").C("bets").EnsureIndexKey("account", "nonce", "bettime")
 	if err != nil {
@@ -47,9 +68,9 @@ func main() {
 		fmt.Println(err)
 	}
 
-	handler.D = database.NewDatabase(session.DB("lucky_bet"))
+	handler.D = database.NewDatabase(session.DB(config.Database.Name))
 
-	if len(os.Args) > 3 {
+	if config.Main.Watch {
 		go handler.D.Watch()
 	}
 

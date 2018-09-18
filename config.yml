@@ -1,0 +1,8 @@
+main :
+  watch : true
+blockchain :
+  contract : Contract3uhVHYjKoK6XXwmG4H2TKPX5Fd8BvfZdKZU9U8a6EMMp
+  server : http://13.237.151.211:30001/
+database :
+  server : localhost:27017
+  name : lucky_bet
