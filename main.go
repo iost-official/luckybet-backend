@@ -5,6 +5,8 @@ import (
 
 	"io/ioutil"
 
+	"os"
+
 	"github.com/go-yaml/yaml"
 	"github.com/iost-official/luckybet-backend/database"
 	"github.com/iost-official/luckybet-backend/handler"
@@ -31,7 +33,7 @@ type Config struct {
 
 func main() {
 
-	yamlFile, err := ioutil.ReadFile("config.yml")
+	yamlFile, err := ioutil.ReadFile(os.Args[1])
 
 	var config Config
 
