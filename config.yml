@@ -1,7 +1,7 @@
 main :
   watch : true
 blockchain :
-  contract : ContractGtkp1UmaL7BfPeRaisL3gc1MasTL2MqesnPJBx191Z1y
+  contract : Contractc1E6meR32PVGK7gQcMVFHk7SkaMjLGV3itvtWMDu5fz
   server : http://52.192.65.220:30001/
 database :
   server : 172.31.40.196:27017
