@@ -46,9 +46,11 @@ type roundWatcher struct {
 
 func (rw *roundWatcher) watch() {
 	for {
+		time.Sleep(time.Second)
+
 		remoteLastRound, err := Round()
 		if err != nil {
-			log.Fatal("watch round fatal: ", err.Error())
+			log.Println("watch round Error: ", err.Error())
 		}
 
 		rw.once.Do(func() {
@@ -82,7 +84,6 @@ func (rw *roundWatcher) watch() {
 
 		rw.localLastRound = remoteLastRound - 1
 
-		time.Sleep(time.Second)
 	}
 }
 
