@@ -60,7 +60,7 @@ func SendBet(address, privKey string, luckyNumberInt, betAmountInt int, nonce in
 		Data: t.Encode(),
 	}
 	j, err := json.Marshal(b)
-	_, err = post(LocalIServer+"/sendRawTx", j)
+	_, err = post(LocalIServer+"sendRawTx", j)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func GetTxnByHash(hash string) (*tx.Tx, error) {
 }
 
 func BlockChainHeight() (int, error) {
-	j, err := get(LocalIServer + "/getHeight")
+	j, err := get(LocalIServer + "getHeight")
 	if err != nil {
 		return 0, err
 	}
@@ -97,7 +97,7 @@ func BlockChainHeight() (int, error) {
 }
 
 func Block(height int) (*BlockInfo, error) {
-	j, err := get(LocalIServer + fmt.Sprintf("/getBlockByNum/%v/0", height))
+	j, err := get(LocalIServer + fmt.Sprintf("getBlockByNum/%v/0", height))
 	if err != nil {
 		return nil, err
 	}
