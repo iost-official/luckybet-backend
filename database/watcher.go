@@ -65,6 +65,7 @@ func (rw *roundWatcher) watch() {
 			r, re, err := IostResult(i)
 			if err != nil {
 				time.Sleep(time.Second)
+				i--
 				continue
 			}
 
@@ -72,7 +73,9 @@ func (rw *roundWatcher) watch() {
 
 			if err != nil {
 				fmt.Println("query time err", r.Height)
-				r.Time = 0
+				time.Sleep(time.Second)
+				i--
+				continue
 			} else {
 				r.Time = bi.Time
 			}
