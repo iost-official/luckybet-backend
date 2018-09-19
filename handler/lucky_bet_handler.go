@@ -16,6 +16,8 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
+var NonceUrl string
+
 type luckyBetHandler struct {
 	account     string // params.ByName("account")
 	betAmount   string // params.ByName("betAmount")
@@ -117,7 +119,7 @@ func (l *luckyBetHandler) send() bool {
 		transferIndex int
 	)
 
-	l.nonce = nonce.Instance().Get(D)
+	l.nonce = nonce.ReqNonce(NonceUrl)
 
 	timestamp := time.Now().UnixNano() + 10*time.Second.Nanoseconds()
 

@@ -10,6 +10,7 @@ import (
 	"github.com/go-yaml/yaml"
 	"github.com/iost-official/luckybet-backend/database"
 	"github.com/iost-official/luckybet-backend/handler"
+	"github.com/iost-official/luckybet-backend/nonce"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttprouter"
 	"gopkg.in/mgo.v2"
@@ -20,6 +21,7 @@ var router fasthttprouter.Router
 type Config struct {
 	Main struct {
 		Watch bool
+		Nonce string
 	}
 	Blockchain struct {
 		Contract string
@@ -83,6 +85,9 @@ func main() {
 		go handler.D.Watch()
 	}
 
+	nonce.D = handler.D
+	handler.NonceUrl = config.Main.Nonce
+
 	run()
 }
 
@@ -94,6 +99,7 @@ func run() {
 	router.GET("/api/luckyBet/latestBetInfo", handler.LatestBetInfo)
 	router.GET("/api/luckyBet/todayRanking", handler.TodayTop10Address)
 	router.GET("/api/luckyBetBlockInfo", handler.BetInfo)
+	router.GET("/nonce", nonce.Handler)
 
 	err := fasthttp.ListenAndServe(":12345", router.Handler)
 	if err != nil {
