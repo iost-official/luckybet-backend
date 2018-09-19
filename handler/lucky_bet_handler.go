@@ -145,7 +145,6 @@ func (l *luckyBetHandler) send() bool {
 	}
 
 	l.txHashEncoded = common.Base58Encode(txHash)
-	log.Println("this txhash is:", l.txHashEncoded)
 	return true
 }
 
