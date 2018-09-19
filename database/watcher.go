@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -70,6 +71,7 @@ func (rw *roundWatcher) watch() {
 			bi, err := rw.d.QueryBlockInfo(r.Height)
 
 			if err != nil {
+				fmt.Println("query time err", r.Height)
 				r.Time = 0
 			} else {
 				r.Time = bi.Time
