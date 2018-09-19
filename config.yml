@@ -1,7 +1,7 @@
 main :
   watch : true
 blockchain :
-  contract : ContractFHWJcunJkSrGuSQhJiYPLxqkHXacZFC3Pkig8GFS4K6o
+  contract : ContractGN8G1dj9VRjyq5Q6W3xWSRGmKJBHtVHSxYB2VnNqXSjm
   server : http://52.192.65.220:30001/
 database :
   server : 172.31.40.196:27017
