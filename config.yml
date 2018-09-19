@@ -3,7 +3,7 @@ main :
   nonce : http://172.31.40.196:12345/nonce
 blockchain :
   contract : Contract5Xi3447aRdyXxaKckwFCEGhHcCipQy2qRkt3Pg3yajXq
-  server : http://52.192.65.220:30001/
+  server : http://localhost:80/
 database :
   server : 172.31.40.196:27017
   name : lucky_bet
