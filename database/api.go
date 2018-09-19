@@ -65,10 +65,11 @@ func SendBet(address, privKey string, luckyNumberInt int, betAmountInt int64, no
 		return nil, err
 	}
 
-	buf, err := body.Get("hash").Bytes()
+	sbuf, err := body.Get("hash").String()
 	if err != nil {
 		return t.Hash(), err
 	}
+	buf := []byte(sbuf)
 
 	fmt.Println("local hash:", common.Base58Encode(t.Hash()))
 	fmt.Println("remote hash:", common.Base58Encode(buf))
