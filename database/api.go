@@ -77,6 +77,9 @@ func GetTxnByHash(hash string) (*tx.Tx, error) {
 	}
 
 	var t tx.Tx
+	if _, ok := j.CheckGet("hash"); !ok {
+		return nil, fmt.Errorf("not found")
+	}
 	b, err := j.Encode()
 	json.Unmarshal(b, &t)
 	return &t, nil
