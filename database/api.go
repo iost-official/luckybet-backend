@@ -215,29 +215,21 @@ func value(key string) (*simplejson.Json, error) {
 }
 
 func get(url string) (*simplejson.Json, error) {
-	//req := fasthttp.AcquireRequest()
-	//res := fasthttp.AcquireResponse()
-	//
-	//defer fasthttp.ReleaseRequest(req)
-	//defer fasthttp.ReleaseResponse(res)
-	//
-	//req.SetRequestURI(url)
-	//req.Header.SetMethod("GET")
-	//
-	//err := Client.Do(req, res)
-	//if err != nil {
-	//	return nil, fmt.Errorf("get: %v", err)
-	//}
-	//
-	//return simplejson.NewJson(res.Body())
-	dst := make([]byte, 0)
+	req := fasthttp.AcquireRequest()
+	res := fasthttp.AcquireResponse()
 
-	_, d2, err := Client.Get(dst, url)
+	defer fasthttp.ReleaseRequest(req)
+	defer fasthttp.ReleaseResponse(res)
+
+	req.SetRequestURI(url)
+	req.Header.SetMethod("GET")
+
+	err := Client.Do(req, res)
 	if err != nil {
-		fmt.Println(string(d2))
 		return nil, fmt.Errorf("get: %v", err)
 	}
-	return simplejson.NewJson(d2)
+
+	return simplejson.NewJson(res.Body())
 }
 
 func post(url string, body []byte) (*simplejson.Json, error) {

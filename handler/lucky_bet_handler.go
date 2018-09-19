@@ -157,8 +157,6 @@ func (l *luckyBetHandler) pullResult() bool {
 		if _, err := database.GetTxnByHash(l.txHashEncoded); err == nil {
 			log.Println("GetLuckyBet blockChain Hash: ", l.txHashEncoded)
 			break
-		} else {
-			log.Println("error is:", err)
 		}
 		checkIndex++
 	}
