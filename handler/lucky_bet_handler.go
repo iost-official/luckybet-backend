@@ -146,12 +146,13 @@ func (l *luckyBetHandler) send() bool {
 	}
 
 	l.txHashEncoded = common.Base58Encode(txHash)
+	log.Println("send:", l.txHashEncoded)
 	return true
 }
 
 func (l *luckyBetHandler) pullResult() bool {
 	var checkIndex int
-	for checkIndex < 30 {
+	for checkIndex < 25 {
 		time.Sleep(time.Second * 2)
 
 		if _, err := database.GetTxnByHash(l.txHashEncoded); err == nil {
@@ -161,7 +162,7 @@ func (l *luckyBetHandler) pullResult() bool {
 		checkIndex++
 	}
 
-	if checkIndex == 30 {
+	if checkIndex == 25 {
 		log.Println("GetLuckyBet checkTxHash error:", ErrOutOfCheckTxHash)
 		return false
 	}
