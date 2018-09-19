@@ -226,7 +226,7 @@ func get(url string) (*simplejson.Json, error) {
 
 	err := Client.Do(req, res)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get: %v", err)
 	}
 
 	return simplejson.NewJson(res.Body())
@@ -246,7 +246,7 @@ func post(url string, body []byte) (*simplejson.Json, error) {
 
 	err := Client.Do(req, res)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("post: %v", err)
 	}
 
 	return simplejson.NewJson(res.Body())
