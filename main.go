@@ -7,6 +7,8 @@ import (
 
 	"os"
 
+	"flag"
+
 	"github.com/go-yaml/yaml"
 	"github.com/iost-official/luckybet-backend/database"
 	"github.com/iost-official/luckybet-backend/handler"
@@ -42,11 +44,16 @@ func main() {
 		cf = "config.yml"
 	}
 
+	isWatch := flag.Bool("w", false, "watch of block chain")
+	flag.Parse()
+
 	yamlFile, err := ioutil.ReadFile(cf)
 
 	var config Config
 
 	err = yaml.Unmarshal(yamlFile, &config)
+
+	config.Main.Watch = *isWatch
 	fmt.Println(config)
 
 	if err != nil {
