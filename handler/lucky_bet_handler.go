@@ -120,6 +120,9 @@ func (l *luckyBetHandler) send() bool {
 	)
 
 	l.nonce = nonce.ReqNonce(NonceUrl)
+	if l.nonce < 0 {
+		return false
+	}
 
 	timestamp := time.Now().UnixNano() + 10*time.Second.Nanoseconds()
 
