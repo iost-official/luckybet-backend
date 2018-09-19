@@ -60,21 +60,12 @@ func SendBet(address, privKey string, luckyNumberInt int, betAmountInt int64, no
 		Data: t.Encode(),
 	}
 	j, err := json.Marshal(b)
-	body, err := post(LocalIServer+"sendRawTx", j)
+	_, err = post(LocalIServer+"sendRawTx", j)
 	if err != nil {
 		return nil, err
 	}
 
-	sbuf, err := body.Get("hash").String()
-	if err != nil {
-		return t.Hash(), err
-	}
-	buf := []byte(sbuf)
-
-	fmt.Println("local hash:", common.Base58Encode(t.Hash()))
-	fmt.Println("remote hash:", common.Base58Encode(buf))
-
-	return buf, nil
+	return t.Hash(), nil
 }
 
 func GetTxnByHash(hash string) (*tx.Tx, error) {
