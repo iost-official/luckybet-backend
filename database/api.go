@@ -146,9 +146,15 @@ func IostResult(round int) (*Result, []Record, error) {
 	buf := []byte(s[1:])
 
 	jbuf, err := simplejson.NewJson(buf)
+	if err != nil {
+		return nil, nil, fmt.Errorf("parse buf: %v", err)
+	}
 
 	var res Result
 	err = json.Unmarshal(buf, &res)
+	if err != nil {
+		return nil, nil, fmt.Errorf("unmarshal: %v", err)
+	}
 
 	res.Round = round
 	res.LuckyNumber = res.Height % 10
