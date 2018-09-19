@@ -119,7 +119,8 @@ func (l *luckyBetHandler) send() bool {
 		transferIndex int
 	)
 
-	l.nonce = nonce.ReqNonce(NonceUrl)
+	//l.nonce = nonce.ReqNonce(NonceUrl)
+	l.nonce = nonce.Instance().Get(D)
 	if l.nonce < 0 {
 		return false
 	}
