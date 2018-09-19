@@ -34,9 +34,7 @@ func newNonce() *Nonce {
 func (n *Nonce) Get(d *database.Database) int {
 	n.m.Lock()
 	defer n.m.Unlock()
-	if n.nonce < 0 {
-		n.nonce = d.QueryNonce()
-	}
+	n.nonce = d.QueryNonce()
 	rtn := n.nonce
 	n.nonce++
 	return rtn
