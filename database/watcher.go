@@ -65,7 +65,9 @@ func (rw *roundWatcher) watch() {
 			r, re, err := IostResult(i)
 			if err != nil {
 				time.Sleep(time.Second)
-				i--
+				if i > rw.localLastRound+1 {
+					i--
+				}
 				continue
 			}
 
@@ -74,11 +76,13 @@ func (rw *roundWatcher) watch() {
 			if err != nil {
 				fmt.Println("query time err", r.Height)
 				time.Sleep(time.Second)
-				i--
+				if i > rw.localLastRound+1 {
+					i--
+				}
 				continue
-			} else {
-				r.Time = bi.Time
 			}
+
+			r.Time = bi.Time
 			rw.d.Insert(r)
 
 			for _, rec := range re {
