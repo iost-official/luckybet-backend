@@ -5,8 +5,6 @@ import (
 
 	"io/ioutil"
 
-	"os"
-
 	"flag"
 
 	"github.com/go-yaml/yaml"
@@ -38,11 +36,8 @@ type Config struct {
 func main() {
 
 	var cf string
-	if len(os.Args) >= 2 {
-		cf = os.Args[1]
-	} else {
-		cf = "config.yml"
-	}
+
+	cf = "config.yml"
 
 	isWatch := flag.Bool("w", false, "watch of block chain")
 	flag.Parse()
@@ -52,6 +47,9 @@ func main() {
 	var config Config
 
 	err = yaml.Unmarshal(yamlFile, &config)
+	if err != nil {
+		panic(err)
+	}
 
 	config.Main.Watch = *isWatch
 	fmt.Println(config)
