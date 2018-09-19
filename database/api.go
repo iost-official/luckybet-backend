@@ -234,6 +234,7 @@ func get(url string) (*simplejson.Json, error) {
 
 	_, d2, err := Client.Get(dst, url)
 	if err != nil {
+		fmt.Println(string(d2))
 		return nil, fmt.Errorf("get: %v", err)
 	}
 	return simplejson.NewJson(d2)
