@@ -95,5 +95,8 @@ func run() {
 	router.GET("/api/luckyBet/todayRanking", handler.TodayTop10Address)
 	router.GET("/api/luckyBetBlockInfo", handler.BetInfo)
 
-	fasthttp.ListenAndServe(":12345", router.Handler)
+	err := fasthttp.ListenAndServe(":12345", router.Handler)
+	if err != nil {
+		panic(err)
+	}
 }
