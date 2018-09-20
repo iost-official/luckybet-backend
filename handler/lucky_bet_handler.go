@@ -125,7 +125,7 @@ func (l *luckyBetHandler) send() bool {
 		return false
 	}
 
-	timestamp := time.Now().UnixNano()
+	timestamp := time.Now().Add(50 * time.Second).UnixNano()
 
 	for transferIndex < 3 {
 		var err error
