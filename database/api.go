@@ -22,12 +22,12 @@ import (
 )
 
 var (
-	LocalIServer = "http://13.237.151.211:30001/"
+	LocalIServer = "http://52.192.65.220:30001/"
 	Client       = fasthttp.Client{
 		MaxIdleConnDuration: 10 * time.Minute,
 		MaxConnsPerHost:     6000,
 	}
-	Contract = "Contract" + "8YTzdYXTwyvguquVSML3G5R4znW3eQYKCaku87WLuZwE"
+	Contract = "Contract" + "AC5V12562T7XB74A8gBe3cjfwWDbJheLWjzyY8VL6JPK"
 )
 
 func BalanceByKey(address string) (int64, error) {

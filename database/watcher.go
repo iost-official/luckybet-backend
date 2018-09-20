@@ -61,13 +61,10 @@ func (rw *roundWatcher) watch() {
 			}
 		})
 
-		for i := rw.localLastRound + 1; i < remoteLastRound; i++ {
+		for i := rw.localLastRound + 1; i < remoteLastRound; {
 			r, re, err := IostResult(i)
 			if err != nil {
 				time.Sleep(time.Second)
-				if i > rw.localLastRound {
-					i--
-				}
 				continue
 			}
 
@@ -76,9 +73,6 @@ func (rw *roundWatcher) watch() {
 			if err != nil {
 				fmt.Println("query time err", r.Height)
 				time.Sleep(time.Second)
-				if i > rw.localLastRound {
-					i--
-				}
 				continue
 			}
 
@@ -89,6 +83,7 @@ func (rw *roundWatcher) watch() {
 				rw.d.UpdateBets(&rec, r.LuckyNumber)
 				rw.d.Insert(&rec)
 			}
+			i++
 		}
 
 		rw.localLastRound = remoteLastRound - 1
