@@ -11,6 +11,8 @@ import (
 
 	"log"
 
+	"time"
+
 	"github.com/bitly/go-simplejson"
 	"github.com/iost-official/Go-IOS-Protocol/account"
 	"github.com/iost-official/Go-IOS-Protocol/common"
@@ -21,8 +23,11 @@ import (
 
 var (
 	LocalIServer = "http://13.237.151.211:30001/"
-	Client       = fasthttp.Client{}
-	Contract     = "Contract" + "8YTzdYXTwyvguquVSML3G5R4znW3eQYKCaku87WLuZwE"
+	Client       = fasthttp.Client{
+		MaxIdleConnDuration: time.Minute,
+		MaxConnsPerHost:     6000,
+	}
+	Contract = "Contract" + "8YTzdYXTwyvguquVSML3G5R4znW3eQYKCaku87WLuZwE"
 )
 
 func BalanceByKey(address string) (int64, error) {
