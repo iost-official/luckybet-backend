@@ -167,6 +167,7 @@ func (l *luckyBetHandler) pullResult() bool {
 		return false
 	}
 	log.Println("GetLuckyBet checkTxHash success.")
+	D.PendingBets(l.nonce)
 	return true
 }
 

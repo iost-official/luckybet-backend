@@ -98,6 +98,7 @@ type Bet struct {
 	ClientIp    string     `json:"client_ip"`
 	Nonce       int        `json:"nonce"`
 	Result      *BetResult `json:"result"`
+	Status      int        `json:"status"`
 }
 
 type BetResult struct {
@@ -149,8 +150,17 @@ func (d *Database) UpdateBets(r *Record, ln int) error {
 	}
 
 	err := d.Bets.Update(bson.M{"nonce": r.Nonce}, bson.M{"$set": bson.M{"result": res}})
-	if err != nil {
-	}
+
+	return err
+}
+
+func (d *Database) PendingBets(nonce int) error {
+	err := d.Bets.Update(bson.M{"nonce": nonce}, bson.M{"$set": bson.M{"status": 1}})
+	return err
+}
+
+func (d *Database) DeleteBets(nonce int) error {
+	err := d.Bets.Update(bson.M{"nonce": nonce}, bson.M{"$set": bson.M{"status": -1}})
 	return err
 }
 

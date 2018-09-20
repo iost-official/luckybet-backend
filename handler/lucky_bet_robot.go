@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"encoding/hex"
 	"encoding/json"
+
+	"encoding/hex"
 
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttprouter"
@@ -40,12 +41,14 @@ func LuckyBetBenchMark(ctx *fasthttp.RequestCtx, _ fasthttprouter.Params) {
 		return
 	}
 
-	if !lbr.pullResult() {
-		json.NewEncoder(ctx).Encode(&luckyBet{4, ErrOutOfCheckTxHash.Error(), lbr.txHashEncoded})
-		return
-	}
-
 	lbr.insert()
 
 	json.NewEncoder(ctx).Encode(&luckyBet{0, hex.EncodeToString(lbr.txHash), lbr.txHashEncoded})
+
+	//if !lbr.pullResult() {
+	//	json.NewEncoder(ctx).Encode(&luckyBet{4, ErrOutOfCheckTxHash.Error(), lbr.txHashEncoded})
+	//	return
+	//}
+	go lbr.pullResult()
+
 }
