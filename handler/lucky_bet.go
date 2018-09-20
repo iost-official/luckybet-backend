@@ -85,7 +85,6 @@ func LuckyBet(ctx *fasthttp.RequestCtx, _ fasthttprouter.Params) {
 	//	json.NewEncoder(ctx).Encode(&luckyBet{4, ErrOutOfCheckTxHash.Error(), lbr.txHashEncoded})
 	//	return
 	//}
-
 	go lbr.pullResult()
 
 }

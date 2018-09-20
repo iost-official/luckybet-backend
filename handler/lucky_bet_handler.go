@@ -164,10 +164,11 @@ func (l *luckyBetHandler) pullResult() bool {
 
 	if checkIndex == 25 {
 		log.Println("GetLuckyBet checkTxHash error:", ErrOutOfCheckTxHash)
+		D.FailBet(l.nonce)
 		return false
 	}
 	log.Println("GetLuckyBet checkTxHash success.")
-	D.PendingBets(l.nonce)
+	D.AcceptBet(l.nonce)
 	return true
 }
 

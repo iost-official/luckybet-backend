@@ -154,12 +154,12 @@ func (d *Database) UpdateBets(r *Record, ln int) error {
 	return err
 }
 
-func (d *Database) PendingBets(nonce int) error {
+func (d *Database) AcceptBet(nonce int) error {
 	err := d.Bets.Update(bson.M{"nonce": nonce}, bson.M{"$set": bson.M{"status": 1}})
 	return err
 }
 
-func (d *Database) DeleteBets(nonce int) error {
+func (d *Database) FailBet(nonce int) error {
 	err := d.Bets.Update(bson.M{"nonce": nonce}, bson.M{"$set": bson.M{"status": -1}})
 	return err
 }
