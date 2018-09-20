@@ -6,3 +6,5 @@ build :
 	go build -o luckybet
 stop :
 	killall luckybet
+set :
+	git commit -a -m "contract" && git push

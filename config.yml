@@ -2,7 +2,7 @@ main :
   watch : false
   nonce : http://172.31.40.196:12345/nonce
 blockchain :
-  contract : Contract31oBTU6WmPJy15msgjaEEZyUJUGFyCrVfXjdxM5zDRmK
+  contract : ContractAC5V12562T7XB74A8gBe3cjfwWDbJheLWjzyY8VL6JPK
   server : http://localhost:80/
 database :
   server : 172.31.40.196:27017
