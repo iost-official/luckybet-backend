@@ -10,7 +10,7 @@ import (
 	"bytes"
 
 	"github.com/bitly/go-simplejson"
-	"github.com/iost-official/Go-IOS-Protocol/common"
+	"github.com/iost-official/go-iost/common"
 	"github.com/iost-official/luckybet-backend/database"
 	"github.com/iost-official/luckybet-backend/nonce"
 	"github.com/valyala/fasthttp"
