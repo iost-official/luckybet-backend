@@ -295,7 +295,7 @@ func (d *Database) QueryTop10(t int64) (top []Top10, err error) {
 		mr := m.(bson.M)
 		top10DayBetWinners = append(top10DayBetWinners, Top10{
 			Id:            mr["_id"].(string),
-			TotalWinIOST:  int64(mr["totalWinIOST"].(int)),
+			TotalWinIOST:  int64(mr["totalWinIOST"].(int64)),
 			TotalBet:      mr["totalBet"].(int64),
 			TotalWinTimes: mr["totalWinTimes"].(int),
 			NetEarn:       mr["netEarn"].(int64),
