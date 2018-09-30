@@ -51,9 +51,16 @@ type RawTxReq struct {
 func SendBet(address, privKey string, luckyNumberInt int, betAmountInt int64, nonce int) ([]byte, error) {
 	act := tx.NewAction(Contract, "bet", fmt.Sprintf(`["%v",%d,%d,%d]`, address, luckyNumberInt, betAmountInt, nonce))
 
-	te := time.Now().Add(50 * time.Second).UnixNano()
+	tn := time.Now()
 
-	t := tx.NewTx([]*tx.Action{&act}, nil, 100000, 1, te)
+	t := &tx.Tx{
+		Time:       tn.UnixNano(),
+		Actions:    []*tx.Action{&act},
+		GasLimit:   10000,
+		GasPrice:   1,
+		Expiration: tn.Add(55 * time.Second).UnixNano(),
+		Publisher:  &crypto.Signature{},
+	}
 	a, err := account.NewAccount(common.Base58Decode(privKey), crypto.Ed25519)
 	if err != nil {
 		return nil, err
