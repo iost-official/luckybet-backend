@@ -124,7 +124,7 @@ func Block(height int) (*BlockInfo, error) {
 
 	bi := &BlockInfo{
 		Height: h,
-		Time:   t,
+		Time:   t * 3,
 	}
 	return bi, nil
 }
