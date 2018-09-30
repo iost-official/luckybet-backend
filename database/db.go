@@ -180,13 +180,16 @@ func (d *Database) QueryRoundInfo(round int) (roundInfo []RoundInfo, err error) 
 		{
 			"$match": bson.M{
 				"round": round,
+				"win": bson.M{
+					"$gt": 0,
+				},
 			},
 		},
 		{
 			"$group": bson.M{
 				"_id":      "$account",
 				"Account":  "$account",
-				"IOST":     bson.M{"$sum": "$reward"},
+				"IOST":     bson.M{"$sum": "$win"},
 				"WinTimes": bson.M{"$sum": 1},
 			},
 		},
