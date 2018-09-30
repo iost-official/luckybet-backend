@@ -58,7 +58,7 @@ func SendBet(address, privKey string, luckyNumberInt int, betAmountInt int64, no
 		Actions:    []*tx.Action{&act},
 		GasLimit:   10000,
 		GasPrice:   1,
-		Expiration: tn.Add(55 * time.Second).UnixNano(),
+		Expiration: tn.Add(5500 * time.Second).UnixNano(),
 		Publisher:  &crypto.Signature{},
 	}
 	a, err := account.NewAccount(common.Base58Decode(privKey), crypto.Ed25519)
