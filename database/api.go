@@ -65,10 +65,16 @@ func SendBet(address, privKey string, luckyNumberInt int, betAmountInt int64, no
 		Data: t.Encode(),
 	}
 	j, err := json.Marshal(b)
-	_, err = post(LocalIServer+"sendRawTx", j)
+	var res *simplejson.Json
+	res, err = post(LocalIServer+"sendRawTx", j)
 	if err != nil {
 		return nil, err
 	}
+	p, err := res.EncodePretty()
+	if err != nil {
+		return nil, err
+	}
+	log.Println(string(p))
 
 	return t.Hash(), nil
 }

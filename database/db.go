@@ -257,9 +257,6 @@ func (d *Database) QueryTop10(t int64) (top []Top10, err error) {
 				"round": bson.M{
 					"$gte": d.Todays1stRound,
 				},
-				"account": bson.M{
-					"$nin": robotAddressList,
-				},
 			},
 		},
 		{
