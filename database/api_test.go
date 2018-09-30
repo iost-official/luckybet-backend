@@ -6,7 +6,7 @@ import (
 )
 
 func TestRound(t *testing.T) {
-	//t.Skip("need manual")
+	t.Skip("need manual")
 	i, err := Round()
 	t.Log(i)
 	if err != nil {
@@ -15,7 +15,7 @@ func TestRound(t *testing.T) {
 }
 
 func TestValue(t *testing.T) {
-	//t.Skip("need manual")
+	t.Skip("need manual")
 	j, err := value("result1")
 	t.Log(j)
 	if err != nil {
@@ -24,6 +24,7 @@ func TestValue(t *testing.T) {
 }
 
 func TestIostResult(t *testing.T) {
+	t.Skip("manual")
 	r, re, err := IostResult(1)
 	if err != nil {
 		t.Fatal(err)

@@ -176,19 +176,17 @@ func (d *Database) QueryLastResult() (last int, err error) {
 }
 
 func (d *Database) QueryRoundInfo(round int) (roundInfo []RoundInfo, err error) {
-	queryPip := []bson.M{
+
+	query := []bson.M{
 		{
 			"$match": bson.M{
 				"round": round,
-				"win": bson.M{
-					"$gt": 0,
-				},
+				"win":   bson.M{"$gt": 0},
 			},
 		},
 		{
 			"$group": bson.M{
 				"_id":      "$account",
-				"Account":  "$account",
 				"IOST":     bson.M{"$sum": "$win"},
 				"WinTimes": bson.M{"$sum": 1},
 			},
@@ -199,7 +197,14 @@ func (d *Database) QueryRoundInfo(round int) (roundInfo []RoundInfo, err error) 
 			},
 		},
 	}
-	err = d.Rewards.Pipe(queryPip).All(&roundInfo)
+	var qr []map[string]interface{}
+	err = d.Rewards.Pipe(query).All(&qr)
+	roundInfo = make([]RoundInfo, len(qr))
+	for i, q := range qr {
+		roundInfo[i].Account = q["_id"].(string)
+		roundInfo[i].Iost = q["IOST"].(int64)
+		roundInfo[i].WinTimes = q["WinTimes"].(int)
+	}
 	return
 }
 
@@ -260,7 +265,7 @@ func (d *Database) QueryTop10(t int64) (top []Top10, err error) {
 		{
 			"$group": bson.M{
 				"_id":           "$account",
-				"totalWinIOST":  bson.M{"$sum": "$reward"},
+				"totalWinIOST":  bson.M{"$sum": "$win"},
 				"totalBet":      bson.M{"$sum": "$bet"},
 				"totalWinTimes": bson.M{"$sum": 1},
 			},
