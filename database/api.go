@@ -80,7 +80,7 @@ func SendBet(address, privKey string, luckyNumberInt int, betAmountInt int64, no
 	if err != nil {
 		return nil, err
 	}
-	p, err := res.EncodePretty()
+	_, err = res.EncodePretty()
 	if err != nil {
 		return nil, err
 	}
