@@ -144,7 +144,7 @@ func (l *luckyBetHandler) send() bool {
 	}
 
 	l.txHashEncoded = common.Base58Encode(txHash)
-	log.Println("send:", l.txHashEncoded)
+	log.Println("send:", l.txHashEncoded, "by:", l.account)
 	return true
 }
 
@@ -154,7 +154,6 @@ func (l *luckyBetHandler) pullResult() bool {
 		time.Sleep(time.Second * 2)
 
 		if _, err := database.GetTxnByHash(l.txHashEncoded); err == nil {
-			log.Println("GetLuckyBet blockChain Hash: ", l.txHashEncoded, "error:", err)
 			break
 		}
 		checkIndex++
