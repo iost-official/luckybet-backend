@@ -84,8 +84,6 @@ func SendBet(address, privKey string, luckyNumberInt int, betAmountInt int64, no
 	if err != nil {
 		return nil, err
 	}
-	log.Println(string(p))
-
 	return t.Hash(), nil
 }
 
