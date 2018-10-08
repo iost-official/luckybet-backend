@@ -19,13 +19,13 @@ import (
 var NonceUrl string
 
 type luckyBetHandler struct {
-	account     string // params.ByName("account")
-	betAmount   string // params.ByName("betAmount")
-	luckyNumber string // params.ByName("luckyNumber")
-	privKey     string // params.ByName("privKey")
-	gcaptcha    string // params.ByName("gcaptcha")
+	account     string
+	betAmount   string
+	luckyNumber string
+	privKey     string
+	gcaptcha    string
 
-	remoteip string // ctx.Request.Header.Peek("Iost_Remote_Addr")
+	remoteip string
 
 	luckyNumberInt int
 	betAmountInt   int64
@@ -150,22 +150,21 @@ func (l *luckyBetHandler) send() bool {
 
 func (l *luckyBetHandler) pullResult() bool {
 	var checkIndex int
-	for checkIndex < 25 {
+	for checkIndex < 28 {
 		time.Sleep(time.Second * 2)
 
 		if _, err := database.GetTxnByHash(l.txHashEncoded); err == nil {
-			log.Println("GetLuckyBet blockChain Hash: ", l.txHashEncoded)
+			log.Println("GetLuckyBet blockChain Hash: ", l.txHashEncoded, "error:", err)
 			break
 		}
 		checkIndex++
 	}
 
-	if checkIndex == 25 {
-		log.Println("GetLuckyBet checkTxHash error:", ErrOutOfCheckTxHash)
+	if checkIndex == 28 {
+		log.Println("GetLuckyBet checkTxHash"+l.txHashEncoded+"error:", ErrOutOfCheckTxHash)
 		D.FailBet(l.nonce)
 		return false
 	}
-	log.Println("GetLuckyBet checkTxHash success.")
 	D.AcceptBet(l.nonce)
 	return true
 }
